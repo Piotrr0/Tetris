@@ -15,7 +15,6 @@ private:
 	void Draw();
 	void Tick();
 	void SpawnBlock();
-	void DrawCurrentBlock();
 
 #pragma region movementsFunctions
 	void HandleMovements();
@@ -32,17 +31,17 @@ private:
 
 private:
 
-	const float targetFPS = 60.f;
+	const int targetFPS = 60.f;
 
-	const float windowHeight = 800.f;
-	const float windowWidth = 800.f;
-	std::string windowName = "Tetris";
+	const int windowHeight = 800;
+	const int windowWidth = 800;
+	const std::string windowName = "Tetris";
 
 	const float moveDownTime = 0.5f;
 	float moveDownTimer = 0.1f;
 
 	Grid* tetrisGrid = new Grid;
-	Block* currentBlock = new Block;
+	Block* currentBlock = nullptr;
 
 public:
 

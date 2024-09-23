@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include "raylib.h"
+#include "Block.h"
 
 struct Cell
 {
@@ -23,22 +24,34 @@ class Grid
 {
 public:
 	Grid();
-	void DrawGrid();
+	void Draw();
+	bool IsBlockInGrid(Block* block);
+	bool CheckCollision(Block* block);
+	void Place(Block* block);
+	bool IsInsideGrid(Vector2 position);
+	bool IsInsideGridXY(Vector2 indecies);
+
 private:
 
+	Vector2 PositionToIndices(Vector2 position);
+	bool IsCellEmpty(Vector2 position);
+	bool IsCellEmptyXY(Vector2 indices);
+
+
 
 private:
 
-	int gridWidth = 10;
-	int gridHeight = 20;
-	int cellSize = 30;
-	std::vector<std::vector<Cell>> cellGrid;
+	const int cols = 10;
+	const int rows = 20;
+	const int cellSize = 30;
+	const int offset = 15;
+	std::vector<std::vector<Cell>> cells;
 	std::vector<std::vector<Color>> colors;
 
 
 public:
 
-	inline std::vector<std::vector<Cell>> GetCellGrid() const { return cellGrid; }
+	inline std::vector<std::vector<Cell>> GetCells() const { return cells; }
 	inline int GetCellSize() const { return cellSize; }
 
 };

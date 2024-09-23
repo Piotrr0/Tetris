@@ -1,37 +1,123 @@
 #include "Grid.h"
 #include <raylib.h>
 #include "Colors.h"
+#include "Block.h"
+#include <iostream>
 
 
 Grid::Grid()
 {
-	cellGrid.resize(gridWidth, std::vector<Cell>(gridHeight));
+    cells.resize(rows, std::vector<Cell>(cols));
 
-	const float offset = 15;
-	for (int i = 0; i < gridWidth; i++)
-	{
-		for (int j = 0; j < gridHeight; j++)
-		{
-			const float posX = i * cellSize + offset;
-			const float posY = j * cellSize + 5.f * offset;
+    for (int i = 0; i < rows; i++)
+    {
+        for (int j = 0; j < cols; j++)
+        {
+            const float posX = j * cellSize + offset;
+            const float posY = i * cellSize + (5.f * offset);
 
-			cellGrid[i][j].screenPosition = Vector2{ posX, posY };
-			cellGrid[i][j].value = 0;
-		}
-	}
+            cells[i][j].screenPosition = Vector2{ posX, posY };
+            cells[i][j].value = 0;
+
+        }
+    }
 }
 
-void Grid::DrawGrid()
+void Grid::Draw()
 {
-	for (int i = 0; i < gridWidth; i++)
-	{
-		for (int j = 0; j < gridHeight; j++)
-		{
-			Cell cell = cellGrid[i][j];
-			const int gridValue = cell.value;
-			const float posX = cell.screenPosition.x;
-			const float posY = cell.screenPosition.y;
-			DrawRectangle(posX, posY, cellSize - 1, cellSize - 1, Colors::GetColor(gridValue));
-		}
-	}
+    for (int i = 0; i < rows; i++)  
+    {
+        for (int j = 0; j < cols; j++) 
+        {
+            Cell& cell = cells[i][j];
+
+            const int gridValue = cell.value;
+            const float posX = cell.screenPosition.x;
+            const float posY = cell.screenPosition.y;
+            DrawRectangle(posX, posY, cellSize - 1, cellSize - 1, Colors::GetColor(gridValue));
+        }
+    }
+}
+
+//---------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+bool Grid::IsBlockInGrid(Block* block)
+{
+    const std::vector<Vector2> tiles = block->GetTiles();
+    for (const auto& tile : tiles)
+    {
+        const Vector2 tilePosition = block->GetTileScreenPosition(tile);
+        if (!IsInsideGrid(tilePosition))
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool Grid::CheckCollision(Block* block)
+{
+    const std::vector<Vector2> tiles = block->GetTiles();
+    for (auto tile : tiles)
+    {
+        const Vector2 tilePosition = block->GetTileScreenPosition(tile);
+        if (!IsCellEmpty(tilePosition))
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+void Grid::Place(Block* block)
+{
+    const std::vector<Vector2> tiles = block->GetTiles();
+    for (auto tile : tiles)
+    {
+        const Vector2 tilePosition = block->GetTileScreenPosition(tile);
+        const Vector2 indices = PositionToIndices(tilePosition);
+        if (IsInsideGridXY(indices))
+        {
+            cells[indices.x][indices.y].value = block->GetBlockID();
+        }
+    }
+}
+
+bool Grid::IsInsideGrid(Vector2 position)
+{
+    const Vector2 indices = PositionToIndices(position);
+    return IsInsideGridXY(indices);
+}
+
+bool Grid::IsInsideGridXY(Vector2 indices)
+{
+    if (indices.y < 0 || indices.y >= cols || indices.x >= rows)
+    {
+        return false;
+    }
+    return true;
+}
+
+
+Vector2 Grid::PositionToIndices(Vector2 position)
+{
+    const float posX = ((position.y - (5.f * offset)) / cellSize);
+    const float posY = ((position.x - offset) / cellSize);
+    return Vector2{ posX, posY };
+}
+
+bool Grid::IsCellEmpty(Vector2 position)
+{
+    const Vector2 indecies = PositionToIndices(position);
+    return IsCellEmptyXY(indecies);
+}
+
+bool Grid::IsCellEmptyXY(Vector2 indices)
+{
+    if (IsInsideGridXY(indices))
+    {
+        Cell cell = cells[indices.x][indices.y];
+        return cell.value == 0;
+    }
+    return false;
 }

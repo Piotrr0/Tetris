@@ -1,7 +1,7 @@
 ﻿#include "raylib.h"
 #include "Tetris.h"
-#include <functional>
 #include <iostream>
+#include "Block.h"
 
 
 Tetris::Tetris()
@@ -12,7 +12,7 @@ Tetris::Tetris()
 
 void Tetris::Play()
 {
-	SpawnBlock();
+
 	while (!WindowShouldClose())
 	{
 		Tick();
@@ -33,39 +33,41 @@ void Tetris::Draw()
 	BeginDrawing();
 	ClearBackground(RAYWHITE);
 
-	tetrisGrid->DrawGrid();
-	DrawCurrentBlock();
+	if (tetrisGrid)
+	{
+		tetrisGrid->Draw();
+	}
 
+	if (currentBlock)
+	{
+		currentBlock->Draw();
+	}
+	
 	EndDrawing();
 }
 
 void Tetris::Tick()
 {
+	if (!currentBlock)
+	{
+		SpawnBlock();
+	}
+
 	MoveDownTimer(moveDownTimer, moveDownTime);
 	HandleMovements();
 }
 
 void Tetris::SpawnBlock()
 {
-	const std::vector<std::vector<Cell>> cellGrid = tetrisGrid->GetCellGrid();
+	const std::vector<std::vector<Cell>> cellGrid = tetrisGrid->GetCells();
 	const int cellSize = tetrisGrid->GetCellSize();
-	const float offset = (2 * cellSize); // shift block 2 cell up
+	const float offset = (2.f * cellSize); // shift block 2 cell up
 
-	const Vector2 blockSpawnPosition = { cellGrid[4][0].screenPosition.x, cellGrid[4][0].screenPosition.y - offset };
+	const Vector2 blockSpawnPosition = { cellGrid[0][4].screenPosition.x, cellGrid[0][4].screenPosition.y - offset };
 
-	if (currentBlock)
+	if (!currentBlock)
 	{
-		currentBlock->position = blockSpawnPosition;
-		currentBlock->size = cellSize;
-		currentBlock->color = BLACK;
-	}
-}
-
-void Tetris::DrawCurrentBlock()
-{
-	if (currentBlock)
-	{
-		DrawRectangle(currentBlock->position.x, currentBlock->position.y, currentBlock->size - 1, currentBlock->size - 1, currentBlock->color);
+		currentBlock = new Block(blockSpawnPosition, cellSize, BLACK);
 	}
 }
 
@@ -90,8 +92,18 @@ void Tetris::MoveBlockDown()
 {
 	if (currentBlock)
 	{
-		const float cellSize = tetrisGrid->GetCellSize();
-		currentBlock->position = Vector2{ currentBlock->position.x , currentBlock->position.y + cellSize };
+		const Vector2 moveVector = Vector2{ 0,-1 };
+		currentBlock->Move(moveVector);
+
+		if (!tetrisGrid->IsBlockInGrid(currentBlock))
+		{
+			const Vector2 moveVector = Vector2{ 0,1 };
+			currentBlock->Move(moveVector);
+			tetrisGrid->Place(currentBlock);
+
+			delete currentBlock;
+			currentBlock = nullptr;
+		}
 	}
 }
 
@@ -99,8 +111,14 @@ void Tetris::MoveBlockLeft()
 {
 	if (currentBlock)
 	{
-		const float cellSize = tetrisGrid->GetCellSize();
-		currentBlock->position = Vector2{ currentBlock->position.x - cellSize , currentBlock->position.y};
+		const Vector2 moveVector = Vector2{ -1, 0 };
+		currentBlock->Move(moveVector);
+
+		if (!tetrisGrid->IsBlockInGrid(currentBlock))
+		{
+			const Vector2 moveVector = Vector2{ 1,0 };
+			currentBlock->Move(moveVector);
+		}
 	}
 }
 
@@ -108,8 +126,13 @@ void Tetris::MoveBlockRight()
 {
 	if (currentBlock)
 	{
-		const float cellSize = tetrisGrid->GetCellSize();
-		currentBlock->position = Vector2{ currentBlock->position.x + cellSize , currentBlock->position.y  };
+		const Vector2 moveVector = Vector2{ 1,0 };
+		currentBlock->Move(moveVector);
+		if (!tetrisGrid->IsBlockInGrid(currentBlock))
+		{
+			const Vector2 moveVector = Vector2{ -1,0 };
+			currentBlock->Move(moveVector);
+		}
 	}
 }
 
