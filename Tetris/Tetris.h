@@ -18,12 +18,16 @@ private:
 
 #pragma region movementsFunctions
 	void HandleMovements();
+	void MoveBlock(Vector2 direction);
 	void MoveBlockDown();
+	void MoveBlockSide(bool left);
+
 	void MoveBlockLeft();
 	void MoveBlockRight();
 
 #pragma endregion
 
+	void PlaceBlock(Block* block);
 
 	void MoveDownTimer(float& timer, float duration);
 	bool HandleCooldown(float& timer, float duration);

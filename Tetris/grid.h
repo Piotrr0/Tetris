@@ -41,6 +41,7 @@ private:
 
 private:
 
+	const int freeRows = 5;
 	const int cols = 10;
 	const int rows = 20;
 	const int cellSize = 30;

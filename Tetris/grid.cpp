@@ -7,39 +7,36 @@
 
 Grid::Grid()
 {
-    cells.resize(rows, std::vector<Cell>(cols));
+    cells.resize(rows + freeRows, std::vector<Cell>(cols));
 
-    for (int i = 0; i < rows; i++)
+    for (int i = 0; i < rows + freeRows; i++)
     {
         for (int j = 0; j < cols; j++)
         {
             const float posX = j * cellSize + offset;
-            const float posY = i * cellSize + (5.f * offset);
+            const float posY = i * cellSize + offset;
 
             cells[i][j].screenPosition = Vector2{ posX, posY };
             cells[i][j].value = 0;
-
         }
     }
 }
 
 void Grid::Draw()
 {
-    for (int i = 0; i < rows; i++)  
+    for (int i = freeRows; i < rows + freeRows; i++)
     {
-        for (int j = 0; j < cols; j++) 
+        for (int j = 0; j < cols; j++)
         {
             Cell& cell = cells[i][j];
-
             const int gridValue = cell.value;
+
             const float posX = cell.screenPosition.x;
             const float posY = cell.screenPosition.y;
             DrawRectangle(posX, posY, cellSize - 1, cellSize - 1, Colors::GetColor(gridValue));
         }
     }
 }
-
-//---------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 bool Grid::IsBlockInGrid(Block* block)
 {
@@ -78,7 +75,7 @@ void Grid::Place(Block* block)
         const Vector2 indices = PositionToIndices(tilePosition);
         if (IsInsideGridXY(indices))
         {
-            cells[indices.x][indices.y].value = block->GetBlockID();
+            cells[indices.y][indices.x].value = block->GetBlockID();
         }
     }
 }
@@ -91,32 +88,29 @@ bool Grid::IsInsideGrid(Vector2 position)
 
 bool Grid::IsInsideGridXY(Vector2 indices)
 {
-    if (indices.y < 0 || indices.y >= cols || indices.x >= rows)
-    {
-        return false;
-    }
-    return true;
+    std::cout << indices.y << "," << indices.x << std::endl;
+    return (indices.y >= 0 && indices.y < rows + freeRows && indices.x >= 0 && indices.x < cols);
 }
-
 
 Vector2 Grid::PositionToIndices(Vector2 position)
 {
-    const float posX = ((position.y - (5.f * offset)) / cellSize);
+    const float posX = ((position.y - offset) / cellSize);
     const float posY = ((position.x - offset) / cellSize);
-    return Vector2{ posX, posY };
+    return Vector2{ posY, posX };
 }
 
 bool Grid::IsCellEmpty(Vector2 position)
 {
-    const Vector2 indecies = PositionToIndices(position);
-    return IsCellEmptyXY(indecies);
+    const Vector2 indices = PositionToIndices(position);
+    return IsCellEmptyXY(indices);
 }
 
 bool Grid::IsCellEmptyXY(Vector2 indices)
 {
     if (IsInsideGridXY(indices))
     {
-        Cell cell = cells[indices.x][indices.y];
+        std::cout << indices.x << " " << indices.y << std::endl;
+        Cell& cell = cells[indices.y][indices.x];
         return cell.value == 0;
     }
     return false;

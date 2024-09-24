@@ -63,7 +63,7 @@ void Tetris::SpawnBlock()
 	const int cellSize = tetrisGrid->GetCellSize();
 	const float offset = (2.f * cellSize); // shift block 2 cell up
 
-	const Vector2 blockSpawnPosition = { cellGrid[0][4].screenPosition.x, cellGrid[0][4].screenPosition.y - offset };
+	const Vector2 blockSpawnPosition = { cellGrid[4][5].screenPosition.x, cellGrid[4][5].screenPosition.y - offset };
 
 	if (!currentBlock)
 	{
@@ -88,6 +88,8 @@ void Tetris::HandleMovements()
 	}
 }
 
+
+// Move function to refactor but for now it's fine
 void Tetris::MoveBlockDown()
 {
 	if (currentBlock)
@@ -95,14 +97,11 @@ void Tetris::MoveBlockDown()
 		const Vector2 moveVector = Vector2{ 0,-1 };
 		currentBlock->Move(moveVector);
 
-		if (!tetrisGrid->IsBlockInGrid(currentBlock))
+		if (!tetrisGrid->IsBlockInGrid(currentBlock) || tetrisGrid->CheckCollision(currentBlock))
 		{
 			const Vector2 moveVector = Vector2{ 0,1 };
 			currentBlock->Move(moveVector);
-			tetrisGrid->Place(currentBlock);
-
-			delete currentBlock;
-			currentBlock = nullptr;
+			PlaceBlock(currentBlock);
 		}
 	}
 }
@@ -119,6 +118,13 @@ void Tetris::MoveBlockLeft()
 			const Vector2 moveVector = Vector2{ 1,0 };
 			currentBlock->Move(moveVector);
 		}
+
+		if(tetrisGrid->CheckCollision(currentBlock))
+		{
+			const Vector2 moveVector = Vector2{ 1,0 };
+			currentBlock->Move(moveVector);
+			PlaceBlock(currentBlock);
+		}
 	}
 }
 
@@ -133,7 +139,22 @@ void Tetris::MoveBlockRight()
 			const Vector2 moveVector = Vector2{ -1,0 };
 			currentBlock->Move(moveVector);
 		}
+
+		if (tetrisGrid->CheckCollision(currentBlock))
+		{
+			const Vector2 moveVector = Vector2{ -1,0 };
+			currentBlock->Move(moveVector);
+			PlaceBlock(currentBlock);
+		}
 	}
+}
+
+void Tetris::PlaceBlock(Block* block)
+{
+	tetrisGrid->Place(currentBlock);
+
+	delete currentBlock;
+	currentBlock = nullptr;
 }
 
 void Tetris::MoveDownTimer(float& timer, float duration)
