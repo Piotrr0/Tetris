@@ -14,16 +14,17 @@ private:
 	void InitializeWindow();
 	void Draw();
 	void Tick();
-	void SpawnBlock();
+	void InitializeBlocks();
+	Vector2 CalculateSpawnPosition();
+	Block* PickRandomBlock();
+	void SpawnBlock(Block* blockToSpaw);
 
 #pragma region movementsFunctions
 	void HandleMovements();
-	void MoveBlock(Vector2 direction);
 	void MoveBlockDown();
-	void MoveBlockSide(bool left);
-
 	void MoveBlockLeft();
 	void MoveBlockRight();
+	void RotateBlock();
 
 #pragma endregion
 
@@ -46,6 +47,7 @@ private:
 
 	Grid* tetrisGrid = new Grid;
 	Block* currentBlock = nullptr;
+	std::vector<Block*> blocks{};
 
 public:
 

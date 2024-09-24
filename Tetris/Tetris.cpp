@@ -1,17 +1,19 @@
 ﻿#include "raylib.h"
 #include "Tetris.h"
-#include <iostream>
-#include "Block.h"
-
+#include "Blocks.h"
+#include <random>
 
 Tetris::Tetris()
 {
 	InitializeWindow();
+	InitializeBlocks();
 	Play();
 }
 
 void Tetris::Play()
 {
+	Block* randomBlock = PickRandomBlock();
+	SpawnBlock(randomBlock);
 
 	while (!WindowShouldClose())
 	{
@@ -48,26 +50,49 @@ void Tetris::Draw()
 
 void Tetris::Tick()
 {
-	if (!currentBlock)
-	{
-		SpawnBlock();
-	}
-
 	MoveDownTimer(moveDownTimer, moveDownTime);
 	HandleMovements();
 }
 
-void Tetris::SpawnBlock()
+void Tetris::InitializeBlocks()
+{
+	const Vector2 defaultPosition = CalculateSpawnPosition();
+	const int cellSize = tetrisGrid->GetCellSize();
+
+	blocks.push_back(new IBlock(defaultPosition, cellSize));
+	blocks.push_back(new JBlock(defaultPosition, cellSize));
+	blocks.push_back(new LBlock(defaultPosition, cellSize));
+	blocks.push_back(new OBlock(defaultPosition, cellSize));
+	blocks.push_back(new SBlock(defaultPosition, cellSize));
+	blocks.push_back(new TBlock(defaultPosition, cellSize));
+}
+
+Vector2 Tetris::CalculateSpawnPosition()
 {
 	const std::vector<std::vector<Cell>> cellGrid = tetrisGrid->GetCells();
-	const int cellSize = tetrisGrid->GetCellSize();
-	const float offset = (2.f * cellSize); // shift block 2 cell up
+	const float offset = 2.f * tetrisGrid->GetCellSize();
 
-	const Vector2 blockSpawnPosition = { cellGrid[4][5].screenPosition.x, cellGrid[4][5].screenPosition.y - offset };
+	return { cellGrid[4][4].screenPosition.x, cellGrid[4][4].screenPosition.y - offset };
+}
 
-	if (!currentBlock)
-	{
-		currentBlock = new Block(blockSpawnPosition, cellSize, BLACK);
+Block* Tetris::PickRandomBlock()
+{
+	const int blocksCount = blocks.size() - 1;
+	std::random_device rd;
+	std::mt19937 gen(rd());
+	std::uniform_int_distribution<> dis(0, blocksCount);
+
+	int randomBlockIndex = dis(gen);
+	std::cout << randomBlockIndex << std::endl;
+
+	return blocks[randomBlockIndex];
+}
+
+void Tetris::SpawnBlock(Block* blockToSpawn)
+{
+	if(blockToSpawn)
+	{ 
+		currentBlock = blockToSpawn;
 	}
 }
 
@@ -85,9 +110,11 @@ void Tetris::HandleMovements()
 	case KEY_DOWN:
 		MoveBlockDown();
 		break;
+	case KEY_UP:
+		RotateBlock();
+		break;
 	}
 }
-
 
 // Move function to refactor but for now it's fine
 void Tetris::MoveBlockDown()
@@ -97,7 +124,14 @@ void Tetris::MoveBlockDown()
 		const Vector2 moveVector = Vector2{ 0,-1 };
 		currentBlock->Move(moveVector);
 
-		if (!tetrisGrid->IsBlockInGrid(currentBlock) || tetrisGrid->CheckCollision(currentBlock))
+		if (!tetrisGrid->IsBlockInGrid(currentBlock))
+		{
+			const Vector2 moveVector = Vector2{ 0,1 };
+			currentBlock->Move(moveVector);
+			PlaceBlock(currentBlock);
+		}
+
+		if (tetrisGrid->CheckCollision(currentBlock))
 		{
 			const Vector2 moveVector = Vector2{ 0,1 };
 			currentBlock->Move(moveVector);
@@ -134,6 +168,7 @@ void Tetris::MoveBlockRight()
 	{
 		const Vector2 moveVector = Vector2{ 1,0 };
 		currentBlock->Move(moveVector);
+
 		if (!tetrisGrid->IsBlockInGrid(currentBlock))
 		{
 			const Vector2 moveVector = Vector2{ -1,0 };
@@ -149,12 +184,24 @@ void Tetris::MoveBlockRight()
 	}
 }
 
+void Tetris::RotateBlock()
+{
+	if(currentBlock)
+	{ 
+		currentBlock->Rotate();
+	}
+}
+
 void Tetris::PlaceBlock(Block* block)
 {
-	tetrisGrid->Place(currentBlock);
+	if (currentBlock)
+	{
+		tetrisGrid->Place(currentBlock);
+		currentBlock->SetPostion(CalculateSpawnPosition());
 
-	delete currentBlock;
-	currentBlock = nullptr;
+		Block* randomBlock = PickRandomBlock();
+		SpawnBlock(randomBlock);
+	}
 }
 
 void Tetris::MoveDownTimer(float& timer, float duration)

@@ -1,20 +1,20 @@
 #include "Block.h"
 #include <vector>
 #include "raylib.h"
+#include "Colors.h"
 
-Block::Block(Vector2 position, int size, Color color)
+Block::Block(Vector2 position, int size) : originPosition(position), tileSize(size)
 {
-	this->originPosition = position;
-	this->tileSize = size;
-	this->color = color;
+	tiles.resize(4, std::vector<Vector2>(4));
 }
 
 void Block::Draw()
 {
-	for (auto tile : tiles)
+	const std::vector<Vector2> currentTileSet = tiles[currentRotation];
+	for (auto tile : currentTileSet)
 	{
-		Vector2 tilePosition = GetTileScreenPosition(tile);
-		DrawRectangle(tilePosition.x, tilePosition.y, tileSize - 1, tileSize - 1, color);
+		const Vector2 tilePosition = GetTileScreenPosition(tile);
+		DrawRectangle(tilePosition.x, tilePosition.y, tileSize - 1, tileSize - 1, Colors::GetColor(ID));
 	}
 }
 
@@ -27,8 +27,12 @@ void Block::Move(Vector2 moveVector)
 	originPosition = desiredPosition;
 }
 
+void Block::Rotate()
+{
+	currentRotation = (currentRotation - 1 + 4) % 4;
+}
+
 Vector2 Block::GetTileScreenPosition(Vector2 tile)
-{	
-	const Vector2 tilePosition = Vector2{ originPosition.x + (tile.x * tileSize), originPosition.y + (tile.y * tileSize) };
-	return tilePosition;
+{
+	return Vector2{ originPosition.x + (tile.x * tileSize), originPosition.y + (tile.y * tileSize) };
 }

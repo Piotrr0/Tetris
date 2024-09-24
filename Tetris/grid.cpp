@@ -40,7 +40,7 @@ void Grid::Draw()
 
 bool Grid::IsBlockInGrid(Block* block)
 {
-    const std::vector<Vector2> tiles = block->GetTiles();
+    const std::vector<Vector2> tiles = block->GetCurrentTileSet();
     for (const auto& tile : tiles)
     {
         const Vector2 tilePosition = block->GetTileScreenPosition(tile);
@@ -54,7 +54,7 @@ bool Grid::IsBlockInGrid(Block* block)
 
 bool Grid::CheckCollision(Block* block)
 {
-    const std::vector<Vector2> tiles = block->GetTiles();
+    const std::vector<Vector2> tiles = block->GetCurrentTileSet();
     for (auto tile : tiles)
     {
         const Vector2 tilePosition = block->GetTileScreenPosition(tile);
@@ -68,14 +68,14 @@ bool Grid::CheckCollision(Block* block)
 
 void Grid::Place(Block* block)
 {
-    const std::vector<Vector2> tiles = block->GetTiles();
+    const std::vector<Vector2> tiles = block->GetCurrentTileSet();
     for (auto tile : tiles)
     {
         const Vector2 tilePosition = block->GetTileScreenPosition(tile);
         const Vector2 indices = PositionToIndices(tilePosition);
         if (IsInsideGridXY(indices))
         {
-            cells[indices.y][indices.x].value = block->GetBlockID();
+            cells[indices.y][indices.x].value = block->GetID();
         }
     }
 }
@@ -109,7 +109,7 @@ bool Grid::IsCellEmptyXY(Vector2 indices)
 {
     if (IsInsideGridXY(indices))
     {
-        std::cout << indices.x << " " << indices.y << std::endl;
+        //std::cout << indices.y << " " << indices.x << std::endl;
         Cell& cell = cells[indices.y][indices.x];
         return cell.value == 0;
     }
