@@ -23,21 +23,22 @@ struct Cell
 class Grid
 {
 public:
+
 	Grid();
 	void Draw();
 	bool IsBlockInGrid(Block* block);
-	bool CheckCollision(Block* block);
 	void Place(Block* block);
 	bool IsInsideGrid(Vector2 position);
 	bool IsInsideGridXY(Vector2 indecies);
+	bool CanBlockMove(Block* block, Vector2 direction);
+	void ClearFullRows();
 
 private:
 
 	Vector2 PositionToIndices(Vector2 position);
 	bool IsCellEmpty(Vector2 position);
 	bool IsCellEmptyXY(Vector2 indices);
-
-
+	bool IsRowFull(int row);
 
 private:
 
@@ -48,7 +49,6 @@ private:
 	const int offset = 15;
 	std::vector<std::vector<Cell>> cells;
 	std::vector<std::vector<Color>> colors;
-
 
 public:
 

@@ -27,9 +27,16 @@ void Block::Move(Vector2 moveVector)
 	originPosition = desiredPosition;
 }
 
-void Block::Rotate()
+void Block::Rotate(bool left)
 {
-	currentRotation = (currentRotation - 1 + 4) % 4;
+	if (left)
+	{
+		currentRotation = (currentRotation - 1 + 4) % 4;
+	}
+	else
+	{
+		currentRotation = (currentRotation + 1 + 4) % 4;
+	}
 }
 
 Vector2 Block::GetTileScreenPosition(Vector2 tile)

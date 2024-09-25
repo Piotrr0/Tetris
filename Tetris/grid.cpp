@@ -52,20 +52,6 @@ bool Grid::IsBlockInGrid(Block* block)
     return true;
 }
 
-bool Grid::CheckCollision(Block* block)
-{
-    const std::vector<Vector2> tiles = block->GetCurrentTileSet();
-    for (auto tile : tiles)
-    {
-        const Vector2 tilePosition = block->GetTileScreenPosition(tile);
-        if (!IsCellEmpty(tilePosition))
-        {
-            return true;
-        }
-    }
-    return false;
-}
-
 void Grid::Place(Block* block)
 {
     const std::vector<Vector2> tiles = block->GetCurrentTileSet();
@@ -92,6 +78,23 @@ bool Grid::IsInsideGridXY(Vector2 indices)
     return (indices.y >= 0 && indices.y < rows + freeRows && indices.x >= 0 && indices.x < cols);
 }
 
+bool Grid::CanBlockMove(Block* block, Vector2 direction)
+{
+    const std::vector<Vector2> tiles = block->GetCurrentTileSet();
+    for (auto tile : tiles)
+    {
+        const Vector2 currentPos = block->GetTileScreenPosition(tile);
+        const Vector2 currentIndices = PositionToIndices(currentPos);
+        const Vector2 newIndices = { currentIndices.x + direction.x, currentIndices.y - direction.y };
+
+        if (!IsInsideGridXY(newIndices) || !IsCellEmptyXY(newIndices))
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
 Vector2 Grid::PositionToIndices(Vector2 position)
 {
     const float posX = ((position.y - offset) / cellSize);
@@ -109,9 +112,19 @@ bool Grid::IsCellEmptyXY(Vector2 indices)
 {
     if (IsInsideGridXY(indices))
     {
-        //std::cout << indices.y << " " << indices.x << std::endl;
-        Cell& cell = cells[indices.y][indices.x];
-        return cell.value == 0;
+        return cells[indices.y][indices.x].value == 0;
     }
     return false;
+}
+
+bool Grid::IsRowFull(int row)
+{
+    for (int col = 0; col < cols; col++)
+    {
+        if (cells[row][col].value == 0)
+        {
+            return false;
+        }
+    }
+    return true;
 }

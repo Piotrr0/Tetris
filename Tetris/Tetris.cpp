@@ -44,7 +44,7 @@ void Tetris::Draw()
 	{
 		currentBlock->Draw();
 	}
-	
+
 	EndDrawing();
 }
 
@@ -90,8 +90,8 @@ Block* Tetris::PickRandomBlock()
 
 void Tetris::SpawnBlock(Block* blockToSpawn)
 {
-	if(blockToSpawn)
-	{ 
+	if (blockToSpawn)
+	{
 		currentBlock = blockToSpawn;
 	}
 }
@@ -102,93 +102,64 @@ void Tetris::HandleMovements()
 	switch (keyPressed)
 	{
 	case KEY_LEFT:
-		MoveBlockLeft();
+		MoveBlock(Vector2{ -1,0 });
 		break;
 	case KEY_RIGHT:
-		MoveBlockRight();
+		MoveBlock(Vector2{ 1, 0 });
 		break;
 	case KEY_DOWN:
-		MoveBlockDown();
+		MoveBlock(Vector2{ 0, -1 });
 		break;
 	case KEY_UP:
 		RotateBlock();
 		break;
+	case KEY_SPACE:
+		SnapToBottom();
+		break;
 	}
 }
 
-// Move function to refactor but for now it's fine
-void Tetris::MoveBlockDown()
+void Tetris::MoveBlock(Vector2 direction)
 {
 	if (currentBlock)
 	{
-		const Vector2 moveVector = Vector2{ 0,-1 };
-		currentBlock->Move(moveVector);
-
-		if (!tetrisGrid->IsBlockInGrid(currentBlock))
+		if (tetrisGrid->CanBlockMove(currentBlock, direction))
 		{
-			const Vector2 moveVector = Vector2{ 0,1 };
-			currentBlock->Move(moveVector);
-			PlaceBlock(currentBlock);
+			currentBlock->Move(direction);
 		}
-
-		if (tetrisGrid->CheckCollision(currentBlock))
+		else
 		{
-			const Vector2 moveVector = Vector2{ 0,1 };
-			currentBlock->Move(moveVector);
-			PlaceBlock(currentBlock);
-		}
-	}
-}
-
-void Tetris::MoveBlockLeft()
-{
-	if (currentBlock)
-	{
-		const Vector2 moveVector = Vector2{ -1, 0 };
-		currentBlock->Move(moveVector);
-
-		if (!tetrisGrid->IsBlockInGrid(currentBlock))
-		{
-			const Vector2 moveVector = Vector2{ 1,0 };
-			currentBlock->Move(moveVector);
-		}
-
-		if(tetrisGrid->CheckCollision(currentBlock))
-		{
-			const Vector2 moveVector = Vector2{ 1,0 };
-			currentBlock->Move(moveVector);
-			PlaceBlock(currentBlock);
+			if (direction.y > 0)
+			{
+				PlaceBlock(currentBlock);
+			}
 		}
 	}
 }
 
-void Tetris::MoveBlockRight()
+void Tetris::SnapToBottom()
 {
 	if (currentBlock)
 	{
-		const Vector2 moveVector = Vector2{ 1,0 };
-		currentBlock->Move(moveVector);
-
-		if (!tetrisGrid->IsBlockInGrid(currentBlock))
+		const Vector2 moveVector = Vector2{ 0, -1 };
+		while (tetrisGrid->CanBlockMove(currentBlock, moveVector))
 		{
-			const Vector2 moveVector = Vector2{ -1,0 };
 			currentBlock->Move(moveVector);
 		}
 
-		if (tetrisGrid->CheckCollision(currentBlock))
-		{
-			const Vector2 moveVector = Vector2{ -1,0 };
-			currentBlock->Move(moveVector);
-			PlaceBlock(currentBlock);
-		}
+		PlaceBlock(currentBlock);
 	}
 }
 
 void Tetris::RotateBlock()
 {
-	if(currentBlock)
-	{ 
-		currentBlock->Rotate();
+	if (currentBlock)
+	{
+		currentBlock->Rotate(true);
+		if (!tetrisGrid->IsBlockInGrid(currentBlock))
+		{
+			currentBlock->Rotate(false);
+		}
 	}
 }
 
@@ -208,7 +179,7 @@ void Tetris::MoveDownTimer(float& timer, float duration)
 {
 	if (HandleCooldown(timer, duration))
 	{
-		MoveBlockDown();
+		MoveBlock(Vector2{ 0,-1 });
 	}
 }
 

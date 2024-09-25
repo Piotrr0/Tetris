@@ -21,9 +21,8 @@ private:
 
 #pragma region movementsFunctions
 	void HandleMovements();
-	void MoveBlockDown();
-	void MoveBlockLeft();
-	void MoveBlockRight();
+	void MoveBlock(Vector2 direction);
+	void SnapToBottom();
 	void RotateBlock();
 
 #pragma endregion
