@@ -31,13 +31,15 @@ public:
 	bool IsInsideGrid(Vector2 position);
 	bool IsInsideGridXY(Vector2 indecies);
 	bool CanBlockMove(Block* block, Vector2 direction);
-	void ClearFullRows();
 
 private:
 
 	Vector2 PositionToIndices(Vector2 position);
 	bool IsCellEmpty(Vector2 position);
 	bool IsCellEmptyXY(Vector2 indices);
+	void ClearFullRows();
+	void ClearRow(int row);
+	void ShiftRowsDown(int fromRow);
 	bool IsRowFull(int row);
 
 private:

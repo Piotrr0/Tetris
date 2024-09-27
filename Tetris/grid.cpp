@@ -64,6 +64,8 @@ void Grid::Place(Block* block)
             cells[indices.y][indices.x].value = block->GetID();
         }
     }
+
+    ClearFullRows();
 }
 
 bool Grid::IsInsideGrid(Vector2 position)
@@ -115,6 +117,43 @@ bool Grid::IsCellEmptyXY(Vector2 indices)
         return cells[indices.y][indices.x].value == 0;
     }
     return false;
+}
+
+void Grid::ClearFullRows()
+{
+    for (int row = rows + freeRows - 1; row >= 0; row--)
+    {
+        if (IsRowFull(row))
+        {
+            ClearRow(row);
+            ShiftRowsDown(row);
+            row++;
+        }
+    }
+}
+
+void Grid::ClearRow(int row)
+{
+    for (int col = 0; col < cols; col++)
+    {
+        cells[row][col].value = 0;
+    }
+}
+
+void Grid::ShiftRowsDown(int fromRow)
+{
+    for (int row = fromRow; row > 0; row--)
+    {
+        for (int col = 0; col < cols; col++)
+        {
+            cells[row][col].value = cells[row - 1][col].value;
+        }
+    }
+
+    for (int col = 0; col < cols; col++)
+    {
+        cells[0][col].value = 0;
+    }
 }
 
 bool Grid::IsRowFull(int row)
