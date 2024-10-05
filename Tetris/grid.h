@@ -2,6 +2,7 @@
 #include <vector>
 #include "raylib.h"
 #include "Block.h"
+#include "memory"
 
 struct Cell
 {
@@ -26,11 +27,11 @@ public:
 
 	Grid();
 	void Draw();
-	bool IsBlockInGrid(Block* block);
-	void Place(Block* block);
+	bool IsBlockInGrid(std::shared_ptr<Block> block);
+	void Place(std::shared_ptr<Block> block);
 	bool IsInsideGrid(Vector2 position);
 	bool IsInsideGridXY(Vector2 indecies);
-	bool CanBlockMove(Block* block, Vector2 direction);
+	bool CanBlockMove(std::shared_ptr<Block> block, Vector2 direction);
 
 private:
 

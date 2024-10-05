@@ -1,6 +1,7 @@
 ﻿#include "raylib.h"
 #include "Tetris.h"
 #include "Blocks.h"
+#include <memory>
 #include <random>
 
 Tetris::Tetris()
@@ -12,7 +13,7 @@ Tetris::Tetris()
 
 void Tetris::Play()
 {
-	Block* randomBlock = PickRandomBlock();
+	std::shared_ptr<Block> randomBlock = PickRandomBlock();
 	SpawnBlock(randomBlock);
 
 	while (!WindowShouldClose())
@@ -59,12 +60,15 @@ void Tetris::InitializeBlocks()
 	const Vector2 defaultPosition = CalculateSpawnPosition();
 	const int cellSize = tetrisGrid->GetCellSize();
 
-	blocks.push_back(new IBlock(defaultPosition, cellSize));
-	blocks.push_back(new JBlock(defaultPosition, cellSize));
-	blocks.push_back(new LBlock(defaultPosition, cellSize));
-	blocks.push_back(new OBlock(defaultPosition, cellSize));
-	blocks.push_back(new SBlock(defaultPosition, cellSize));
-	blocks.push_back(new TBlock(defaultPosition, cellSize));
+	const int blocksCount = 6;
+	blocks.reserve(blocksCount);
+
+	blocks.push_back(std::make_shared<IBlock>(defaultPosition, cellSize));
+	blocks.push_back(std::make_shared<JBlock>(defaultPosition, cellSize));
+	blocks.push_back(std::make_shared<LBlock>(defaultPosition, cellSize));
+	blocks.push_back(std::make_shared<OBlock>(defaultPosition, cellSize));
+	blocks.push_back(std::make_shared<SBlock>(defaultPosition, cellSize));
+	blocks.push_back(std::make_shared<TBlock>(defaultPosition, cellSize));
 }
 
 Vector2 Tetris::CalculateSpawnPosition()
@@ -75,7 +79,7 @@ Vector2 Tetris::CalculateSpawnPosition()
 	return { cellGrid[4][4].screenPosition.x, cellGrid[4][4].screenPosition.y - offset };
 }
 
-Block* Tetris::PickRandomBlock()
+std::shared_ptr<Block> Tetris::PickRandomBlock()
 {
 	const int blocksCount = blocks.size() - 1;
 	std::random_device rd;
@@ -88,7 +92,7 @@ Block* Tetris::PickRandomBlock()
 	return blocks[randomBlockIndex];
 }
 
-void Tetris::SpawnBlock(Block* blockToSpawn)
+void Tetris::SpawnBlock(std::shared_ptr<Block> blockToSpawn)
 {
 	if (blockToSpawn)
 	{
@@ -131,7 +135,7 @@ void Tetris::MoveBlock(Vector2 direction)
 		{
 			if (direction.y > 0)
 			{
-				PlaceBlock(currentBlock);
+				PlaceBlock();
 			}
 		}
 	}
@@ -147,7 +151,7 @@ void Tetris::SnapToBottom()
 			currentBlock->Move(moveVector);
 		}
 
-		PlaceBlock(currentBlock);
+		PlaceBlock();
 	}
 }
 
@@ -163,14 +167,14 @@ void Tetris::RotateBlock()
 	}
 }
 
-void Tetris::PlaceBlock(Block* block)
+void Tetris::PlaceBlock()
 {
 	if (currentBlock)
 	{
 		tetrisGrid->Place(currentBlock);
 		currentBlock->SetPostion(CalculateSpawnPosition());
 
-		Block* randomBlock = PickRandomBlock();
+		std::shared_ptr<Block> randomBlock = PickRandomBlock();
 		SpawnBlock(randomBlock);
 	}
 }

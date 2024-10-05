@@ -1,7 +1,7 @@
 #pragma once
 #include "raylib.h"
 #include "grid.h"
-#include "iostream"
+#include <iostream>
 #include "Block.h"
 
 class Tetris
@@ -16,8 +16,8 @@ private:
 	void Tick();
 	void InitializeBlocks();
 	Vector2 CalculateSpawnPosition();
-	Block* PickRandomBlock();
-	void SpawnBlock(Block* blockToSpaw);
+	std::shared_ptr<Block> PickRandomBlock();
+	void SpawnBlock(std::shared_ptr<Block> blockToSpawn);
 
 #pragma region movementsFunctions
 	void HandleMovements();
@@ -27,7 +27,7 @@ private:
 
 #pragma endregion
 
-	void PlaceBlock(Block* block);
+	void PlaceBlock();
 
 	void MoveDownTimer(float& timer, float duration);
 	bool HandleCooldown(float& timer, float duration);
@@ -44,9 +44,9 @@ private:
 	const float moveDownTime = 0.5f;
 	float moveDownTimer = 0.1f;
 
-	Grid* tetrisGrid = new Grid;
-	Block* currentBlock = nullptr;
-	std::vector<Block*> blocks{};
+	std::unique_ptr<Grid> tetrisGrid = std::make_unique<Grid>();
+	std::shared_ptr<Block> currentBlock = nullptr; 
+	std::vector<std::shared_ptr<Block>> blocks;
 
 public:
 

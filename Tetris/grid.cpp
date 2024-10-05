@@ -2,6 +2,7 @@
 #include <raylib.h>
 #include "Colors.h"
 #include "Block.h"
+#include <memory>
 #include <iostream>
 
 
@@ -38,7 +39,7 @@ void Grid::Draw()
     }
 }
 
-bool Grid::IsBlockInGrid(Block* block)
+bool Grid::IsBlockInGrid(std::shared_ptr<Block> block)
 {
     const std::vector<Vector2> tiles = block->GetCurrentTileSet();
     for (const auto& tile : tiles)
@@ -52,7 +53,7 @@ bool Grid::IsBlockInGrid(Block* block)
     return true;
 }
 
-void Grid::Place(Block* block)
+void Grid::Place(std::shared_ptr<Block> block)
 {
     const std::vector<Vector2> tiles = block->GetCurrentTileSet();
     for (auto tile : tiles)
@@ -82,7 +83,7 @@ bool Grid::IsInsideGridXY(Vector2 indices)
     return (indices.y >= 0 && indices.y < rows + freeRows && indices.x >= 0 && indices.x < cols);
 }
 
-bool Grid::CanBlockMove(Block* block, Vector2 direction)
+bool Grid::CanBlockMove(std::shared_ptr<Block> block, Vector2 direction)
 {
     const std::vector<Vector2> tiles = block->GetCurrentTileSet();
     for (auto tile : tiles)
