@@ -13,8 +13,8 @@ Grid::Grid()
     {
         for (int j = 0; j < cols; j++)
         {
-            const float posX = j * cellSize + offset;
-            const float posY = i * cellSize + offset;
+            const float posX = static_cast<float>(j * cellSize + offset);
+            const float posY = static_cast<float>(i * cellSize + offset);
 
             cells[i][j].screenPosition = Vector2{ posX, posY };
             cells[i][j].value = 0;
@@ -31,8 +31,8 @@ void Grid::Draw()
             Cell& cell = cells[i][j];
             const int gridValue = cell.value;
 
-            const float posX = cell.screenPosition.x;
-            const float posY = cell.screenPosition.y;
+            const int posX = static_cast<int>(cell.screenPosition.x);
+            const int posY = static_cast<int>(cell.screenPosition.y);
             DrawRectangle(posX, posY, cellSize - 1, cellSize - 1, Colors::GetColor(gridValue));
         }
     }
@@ -61,7 +61,9 @@ void Grid::Place(Block* block)
         const Vector2 indices = PositionToIndices(tilePosition);
         if (IsInsideGridXY(indices))
         {
-            cells[indices.y][indices.x].value = block->GetID();
+            int row = static_cast<int>(indices.y);
+            int col = static_cast<int>(indices.x);
+            cells[row][col].value = block->GetID();
         }
     }
 
@@ -114,7 +116,9 @@ bool Grid::IsCellEmptyXY(Vector2 indices)
 {
     if (IsInsideGridXY(indices))
     {
-        return cells[indices.y][indices.x].value == 0;
+        int row = static_cast<int>(indices.y);
+        int col = static_cast<int>(indices.x);
+        return cells[row][col].value == 0;
     }
     return false;
 }

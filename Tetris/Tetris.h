@@ -35,7 +35,7 @@ private:
 
 private:
 
-	const int targetFPS = 60.f;
+	const int targetFPS = 60;
 
 	const int windowHeight = 800;
 	const int windowWidth = 800;

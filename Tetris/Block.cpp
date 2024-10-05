@@ -14,7 +14,10 @@ void Block::Draw()
 	for (auto tile : currentTileSet)
 	{
 		const Vector2 tilePosition = GetTileScreenPosition(tile);
-		DrawRectangle(tilePosition.x, tilePosition.y, tileSize - 1, tileSize - 1, Colors::GetColor(ID));
+		const int posX = static_cast<int>(tilePosition.x);
+		const int posY = static_cast<int>(tilePosition.y);
+
+		DrawRectangle(posX, posY, tileSize - 1, tileSize - 1, Colors::GetColor(ID));
 	}
 }
 
