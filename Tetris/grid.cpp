@@ -5,31 +5,30 @@
 #include <memory>
 #include <iostream>
 
-
 Grid::Grid()
 {
     cells.resize(rows + freeRows, std::vector<Cell>(cols));
 
-    for (int i = 0; i < rows + freeRows; i++)
+    for (int y = 0; y < rows + freeRows; y++)
     {
-        for (int j = 0; j < cols; j++)
+        for (int x = 0; x < cols; x++)
         {
-            const float posX = static_cast<float>(j * cellSize + offset);
-            const float posY = static_cast<float>(i * cellSize + offset);
+            const float posX = static_cast<float>(x * cellSize + offset);
+            const float posY = static_cast<float>(y * cellSize + offset);
 
-            cells[i][j].screenPosition = Vector2{ posX, posY };
-            cells[i][j].value = 0;
+            cells[y][x].screenPosition = Vector2{ posX, posY };
+            cells[y][x].value = 0;
         }
     }
 }
 
 void Grid::Draw()
 {
-    for (int i = freeRows; i < rows + freeRows; i++)
+    for (int y = freeRows; y < rows + freeRows; y++)
     {
-        for (int j = 0; j < cols; j++)
+        for (int x = 0; x < cols; x++)
         {
-            Cell& cell = cells[i][j];
+            Cell& cell = cells[y][x];
             const int gridValue = cell.value;
 
             const int posX = static_cast<int>(cell.screenPosition.x);
@@ -62,9 +61,9 @@ void Grid::Place(std::shared_ptr<Block> block)
         const Vector2 indices = PositionToIndices(tilePosition);
         if (IsInsideGridXY(indices))
         {
-            int row = static_cast<int>(indices.y);
-            int col = static_cast<int>(indices.x);
-            cells[row][col].value = block->GetID();
+            int y = static_cast<int>(indices.y);
+            int x = static_cast<int>(indices.x);
+            cells[y][x].value = block->GetID();
         }
     }
 
@@ -117,55 +116,55 @@ bool Grid::IsCellEmptyXY(Vector2 indices)
 {
     if (IsInsideGridXY(indices))
     {
-        int row = static_cast<int>(indices.y);
-        int col = static_cast<int>(indices.x);
-        return cells[row][col].value == 0;
+        int y = static_cast<int>(indices.y);
+        int x = static_cast<int>(indices.x);
+        return cells[y][x].value == 0;
     }
     return false;
 }
 
 void Grid::ClearFullRows()
 {
-    for (int row = rows + freeRows - 1; row >= 0; row--)
+    for (int y = rows + freeRows - 1; y >= 0; y--)
     {
-        if (IsRowFull(row))
+        if (IsRowFull(y))
         {
-            ClearRow(row);
-            ShiftRowsDown(row);
-            row++;
+            ClearRow(y);
+            ShiftRowsDown(y);
+            y++;
         }
     }
 }
 
-void Grid::ClearRow(int row)
+void Grid::ClearRow(int y)
 {
-    for (int col = 0; col < cols; col++)
+    for (int x = 0; x < cols; x++)
     {
-        cells[row][col].value = 0;
+        cells[y][x].value = 0;
     }
 }
 
 void Grid::ShiftRowsDown(int fromRow)
 {
-    for (int row = fromRow; row > 0; row--)
+    for (int y = fromRow; y > 0; y--)
     {
-        for (int col = 0; col < cols; col++)
+        for (int x = 0; x < cols; x++)
         {
-            cells[row][col].value = cells[row - 1][col].value;
+            cells[y][x].value = cells[y - 1][x].value;
         }
     }
 
-    for (int col = 0; col < cols; col++)
+    for (int x = 0; x < cols; x++)
     {
-        cells[0][col].value = 0;
+        cells[0][x].value = 0;
     }
 }
 
-bool Grid::IsRowFull(int row)
+bool Grid::IsRowFull(int y)
 {
-    for (int col = 0; col < cols; col++)
+    for (int x = 0; x < cols; x++)
     {
-        if (cells[row][col].value == 0)
+        if (cells[y][x].value == 0)
         {
             return false;
         }
